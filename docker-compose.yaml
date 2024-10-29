@@ -42,6 +42,23 @@ services:
       retries: 5
       start_period: 5s
     restart: always
+
+  postgres-warehouse:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: warehouse
+      POSTGRES_PASSWORD: warehouse
+      POSTGRES_DB: warehouse
+    ports:
+      - "5432:5432"
+    volumes:
+      - warehouse-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "warehouse"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: always
   
   redis:
     image: redis:7.2-bookworm
@@ -156,12 +173,9 @@ services:
       - "3000:3000"
     volumes:
       - ./data:/opt/airflow/data
-    # environment:
-      # - MB_DB_FILE=/opt/airflow/data/marketplace.db
-      # - MB_DB_TYPE=sqlite  # Force Metabase to use SQLite
-      # - MB_DB_AUTOMIGRATE=false  # Prevent Metabase from trying to modify or create the DB
-      ##- MB_DB_FILE=/opt/airflow/data/marketplace.db
+
 
 volumes:
   postgres-db-volume:
+  warehouse-db-volume:
   sqlite-data-volume:
